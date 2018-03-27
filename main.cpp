@@ -7,6 +7,8 @@
 #include <list>
 #include "pycap.h"
 #define USECOLOR 1
+#define NUM_FRAME 30
+//list容器存储图片帧数，也是python处理每批图片的数量
 using namespace std;
 using namespace cv;
 #include <sstream>
@@ -15,7 +17,6 @@ list<IplImage*> list_img;
 IplImage *pImg;
 IplImage *pImgYCrCb;
 IplImage *pImg1 = cvCreateImage(cvSize(100, 100), 8, 3);
-IplImage *pImg2 = cvCreateImage(cvSize(100, 100), 8, 3);
 int p_count = 0, termi = 0;
 
 list<IplImage*>::iterator it = list_img.begin();
@@ -93,7 +94,7 @@ void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,FRAME_INFO * pFrameInfo
     cvCvtColor(pImgYCrCb,pImg,CV_YCrCb2RGB);
     cvResize(pImg, pImg1);
 
-    if(it == list_img.end() && p_count >= 50)
+    if(it == list_img.end() && p_count >= NUM_FRAME)
     {
         ++it;
     }
@@ -203,30 +204,39 @@ void CALLBACK g_ExceptionCallBack(DWORD dwType, LONG lUserID, LONG lHandle, void
 
 DWORD WINAPI dealFun(LPVOID lpParameter)
 {
-    int sig;
+    int *sig, i;
+    IplImage *img[NUM_FRAME];
     //调用python处理图像
     while(1)
     {
+        //结束线程信号
         if(termi == 1)
         {
             printf("Thread dealFun exiting...\n");
-            return -1;
+            break;
         }
 
-        if(it1 == list_img.end())
-            ++it1;
-        else
+        //容器内帧数不足时等待
+        if(p_count <= NUM_FRAME)
+            continue;
+
+        //从容器中调用图片
+        it1 = list_img.begin();
+        for(i = 0; i < NUM_FRAME; ++i)
         {
-            pImg2 = *it1;
+            img[i] = *it1;
             ++it1;
         }
-        sig = pycap(pImg2);
-        if(sig == 1)
-        {
-            printf("\a");
-            return 1;
-        }
+
+        sig = pycap(img, NUM_FRAME);
+        for(i = 0; i < NUM_FRAME; ++i)
+            if(sig[i] == 1)
+                printf("\a");  //识别目标发出警报
     }
+    //释放资源
+    for(i = 0; i < NUM_FRAME; ++i)
+        cvReleaseImage(&img[i]);
+    delete []sig;
     return 0;
 }
 
@@ -328,6 +338,5 @@ int main() {
     cvReleaseImage(&pImg);
 #endif
   cvReleaseImage(&pImg1);
-  cvReleaseImage(&pImg2);
   return 0;
 }
