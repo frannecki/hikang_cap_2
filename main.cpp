@@ -6,33 +6,24 @@
 #include "PlayM4.h"
 #include <list>
 #include "pycap.h"
+#include "rwlockhead.h"
 #define USECOLOR 1
+#define NUM_FRAME 30
+//list容器存储图片帧数，也是python处理每批图片的数量
 using namespace std;
 using namespace cv;
-#include <sstream>
 
 list<IplImage*> list_img;
-IplImage *pImg;
-IplImage *pImgYCrCb;
-IplImage *pImg1 = cvCreateImage(cvSize(100, 100), 8, 3);
-IplImage *pImg2 = cvCreateImage(cvSize(100, 100), 8, 3);
-int p_count = 0, termi = 0;
+volatile int termi = 0;
+CRWLock RW_Lock;
 
 list<IplImage*>::iterator it = list_img.begin();
-list<IplImage*>::iterator it1 = list_img.begin();
 
 //--------------------------------------------
 int iPicNum=0;//Set channel NO.
 LONG nPort=-1;
 HWND hWnd=NULL;
 
-//string str1 = "G:/cache/", str2 = ".jpg";
-string num2str(int i)
-{
-   std::stringstream ss;
-   ss << i;
-   return ss.str();
-}
 
 void yv12toYUV(char *outYuv, char *inYv12, int width, int height,int widthStep)
 {
@@ -41,8 +32,6 @@ void yv12toYUV(char *outYuv, char *inYv12, int width, int height,int widthStep)
    int tmp;
    int idx;
 
-  //printf("widthStep=%d.\n",widthStep);
-
    for (row=0; row<height; row++)
    {
       idx=row * widthStep;
@@ -50,22 +39,10 @@ void yv12toYUV(char *outYuv, char *inYv12, int width, int height,int widthStep)
 
       for (col=0; col<width; col++)
       {
-         //int colhalf=col>>1;
          tmp = (row/2)*(width/2)+(col/2);
-//         if((row==1)&&( col>=1400 &&col<=1600))
-//         {
-//          printf("col=%d,row=%d,width=%d,tmp=%d.\n",col,row,width,tmp);
-//          printf("row*width+col=%d,width*height+width*height/4+tmp=%d,width*height+tmp=%d.\n",row*width+col,width*height+width*height/4+tmp,width*height+tmp);
-//         }
          Y=(unsigned int) inYv12[row*width+col];
          U=(unsigned int) inYv12[width*height+width*height/4+tmp];
          V=(unsigned int) inYv12[width*height+tmp];
-//         if ((col==200))
-//         {
-//         printf("col=%d,row=%d,width=%d,tmp=%d.\n",col,row,width,tmp);
-//         printf("width*height+width*height/4+tmp=%d.\n",width*height+width*height/4+tmp);
-//         return ;
-//         }
          if((idx+col*3+2)> (1200 * widthStep))
          {
           //printf("row * widthStep=%d,idx+col*3+2=%d.\n",1200 * widthStep,idx+col*3+2);
@@ -75,7 +52,6 @@ void yv12toYUV(char *outYuv, char *inYv12, int width, int height,int widthStep)
          outYuv[idx+col*3+2] = V;
       }
    }
-   //printf("col=%d,row=%d.\n",col,row);
 }
 
 
@@ -84,43 +60,33 @@ void yv12toYUV(char *outYuv, char *inYv12, int width, int height,int widthStep)
 void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,FRAME_INFO * pFrameInfo, long nReserved1,long nReserved2)
 {
     long lFrameType = pFrameInfo->nType;
+    IplImage *pImg;
+    IplImage *pImgYCrCb;
+    IplImage *pImg1 = cvCreateImage(cvSize(100, 100), 8, 3);
 
     if(lFrameType ==T_YV12)
     {
-    pImgYCrCb = cvCreateImage(cvSize(pFrameInfo->nWidth,pFrameInfo->nHeight), 8, 3);//得到图像的Y分量
-    yv12toYUV(pImgYCrCb->imageData, pBuf, pFrameInfo->nWidth,pFrameInfo->nHeight,pImgYCrCb->widthStep);//得到全部RGB图像
-    pImg = cvCreateImage(cvSize(pFrameInfo->nWidth,pFrameInfo->nHeight), 8, 3);
-    cvCvtColor(pImgYCrCb,pImg,CV_YCrCb2RGB);
-    cvResize(pImg, pImg1);
+        pImgYCrCb = cvCreateImage(cvSize(pFrameInfo->nWidth,pFrameInfo->nHeight), 8, 3);//得到图像的Y分量
+        yv12toYUV(pImgYCrCb->imageData, pBuf, pFrameInfo->nWidth,pFrameInfo->nHeight,pImgYCrCb->widthStep);//得到全部RGB图像
+        pImg = cvCreateImage(cvSize(pFrameInfo->nWidth,pFrameInfo->nHeight), 8, 3);
+        cvCvtColor(pImgYCrCb,pImg,CV_YCrCb2RGB);
+        cvResize(pImg, pImg1);
 
-    if(it == list_img.end() && p_count >= 50)
-    {
-        ++it;
-    }
-    else
-    {
-        *it = pImg;
-        ++it;
-        if(it == list_img.end())
-            p_count++;
-    }
+        RW_Lock.WriteLock();
+        if(list_img.size() < NUM_FRAME)
+        {
+            list_img.push_back(pImg1);
+        }
+        else
+        {
+            list_img.pop_front();
+            list_img.push_back(pImg1);
+        }
 
-    Sleep(500);
-    //此时是YV12格式的视频数据，保存在pBuf中，可以fwrite(pBuf,nSize,1,Videofile);
-    //fwrite(pBuf,nSize,1,fp);
-    }
-    /***************
-    else if (lFrameType ==T_AUDIO16)
-    {
-        //此时是音频数据，数据保存在pBuf中，可以fwrite(pBuf,nSize,1,Audiofile);
+        RW_Lock.WriteUnlock();
 
+        Sleep(100);
     }
-    else
-    {
-
-    }
-    *******************/
-
 }
 
 
@@ -149,12 +115,6 @@ void CALLBACK fRealDataCallBack(LONG lRealHandle,DWORD dwDataType,BYTE *pBuffer,
                 break;
             }
 
-            //设置解码回调函数 解码且显示
-            //if (!PlayM4_SetDecCallBackEx(nPort,DecCBFun,NULL,NULL))
-            //{
-            //  dRet=PlayM4_GetLastError(nPort);
-            //  break;
-            //}
 
             //打开视频解码
             if (!PlayM4_Play(nPort,hWnd))
@@ -203,30 +163,43 @@ void CALLBACK g_ExceptionCallBack(DWORD dwType, LONG lUserID, LONG lHandle, void
 
 DWORD WINAPI dealFun(LPVOID lpParameter)
 {
-    int sig;
+    int *sig, i;
+    IplImage *img[NUM_FRAME];
     //调用python处理图像
     while(1)
     {
+        //结束线程信号
         if(termi == 1)
         {
             printf("Thread dealFun exiting...\n");
-            return -1;
+            break;
         }
 
-        if(it1 == list_img.end())
-            ++it1;
-        else
+        //读锁
+        RW_Lock.ReadLock();
+        //容器内帧数不足时等待
+        if(list_img.size() < NUM_FRAME)
+            continue;
+
+        //从容器中调用图片
+        it1 = list_img.begin();
+        for(i = 0; i < NUM_FRAME; ++i)
         {
-            pImg2 = *it1;
-            ++it1;
+            img[i] = *it;
+            ++it;
         }
-        sig = pycap(pImg2);
-        if(sig == 1)
-        {
-            printf("\a");
-            return 1;
-        }
+        RW_Lock.ReadUnlock();
+
+
+        sig = pycap(img, NUM_FRAME);
+        for(i = 0; i < NUM_FRAME; ++i)
+            if(sig[i] == 1)
+                printf("\a");  //识别目标发出警报
     }
+    //释放资源
+    for(i = 0; i < NUM_FRAME; ++i)
+        cvReleaseImage(&img[i]);
+    delete []sig;
     return 0;
 }
 
@@ -300,7 +273,7 @@ int main() {
         scanf("%d", &termi);
         if(termi == 1)
         {
-            printf("Program exiting in 5 seconds...");
+            printf("Program exiting in 2 seconds...");
             Sleep(2000);
             break;
         }
@@ -328,6 +301,5 @@ int main() {
     cvReleaseImage(&pImg);
 #endif
   cvReleaseImage(&pImg1);
-  cvReleaseImage(&pImg2);
   return 0;
 }
