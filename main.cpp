@@ -16,7 +16,9 @@ using namespace cv;
 list<IplImage*> list_img;
 volatile int termi = 0;
 CRWLock RW_Lock;
-
+IplImage *pImg;
+IplImage *pImgYCrCb;
+IplImage *pImg1 = cvCreateImage(cvSize(100, 100), 8, 3);
 list<IplImage*>::iterator it = list_img.begin();
 
 //--------------------------------------------
@@ -60,9 +62,6 @@ void yv12toYUV(char *outYuv, char *inYv12, int width, int height,int widthStep)
 void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,FRAME_INFO * pFrameInfo, long nReserved1,long nReserved2)
 {
     long lFrameType = pFrameInfo->nType;
-    IplImage *pImg;
-    IplImage *pImgYCrCb;
-    IplImage *pImg1 = cvCreateImage(cvSize(100, 100), 8, 3);
 
     if(lFrameType ==T_YV12)
     {
@@ -165,6 +164,7 @@ DWORD WINAPI dealFun(LPVOID lpParameter)
 {
     int *sig, i;
     IplImage *img[NUM_FRAME];
+    list<IplImage*>::iterator it1;
     //调用python处理图像
     while(1)
     {
@@ -179,9 +179,13 @@ DWORD WINAPI dealFun(LPVOID lpParameter)
         RW_Lock.ReadLock();
         //容器内帧数不足时等待
         if(list_img.size() < NUM_FRAME)
+        {
             continue;
+            printf("%d ",list_img.size());
+        }
 
-        //从容器中调用图片
+
+        //从容器中调取图片
         it1 = list_img.begin();
         for(i = 0; i < NUM_FRAME; ++i)
         {
@@ -245,9 +249,7 @@ int main() {
     ClientInfo.sMultiCastIP = NULL;
 
     LONG lRealPlayHandle;
-    //printf("starting\n");
     lRealPlayHandle = NET_DVR_RealPlay_V30(lUserID,&ClientInfo,fRealDataCallBack,NULL,TRUE);
-    //printf("ended\n");
     if (lRealPlayHandle<0)
     {
       printf("NET_DVR_RealPlay_V30 failed! Error number: %d\n",NET_DVR_GetLastError());
@@ -267,7 +269,7 @@ int main() {
         );
 
     CloseHandle(hChildThread);
-
+    int termi;
     while(1)
     {
         scanf("%d", &termi);
@@ -280,19 +282,11 @@ int main() {
     }
 
     //Sleep(-1);
-    //fclose(fp);
-    //---------------------------------------
-    //关闭预览
-    if(!NET_DVR_StopRealPlay(lRealPlayHandle))
-    {
-      printf("NET_DVR_StopRealPlay error! Error number: %d\n",NET_DVR_GetLastError());
-      return -1;
-    }
     //注销用户
     NET_DVR_Logout(lUserID);
-    NET_DVR_Cleanup();
-    printf("exited");
+    //NET_DVR_Cleanup();
 
+    printf("exited\n");
 
 #if USECOLOR
     cvReleaseImage(&pImgYCrCb);

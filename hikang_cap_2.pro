@@ -39,5 +39,4 @@ LIBS+=C:\opencv2\x86\mingw\lib\libopencv_calib3d2413.dll.a\
 
 HEADERS += \
     pycap.h \
-    pycap.h \
     rwlockhead.h
