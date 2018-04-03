@@ -63,6 +63,7 @@ void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,FRAME_INFO * pFrameInfo
 
     if(lFrameType ==T_YV12)
     {
+        //写锁
         RW_Lock.WriteLock();
         pImgYCrCb = cvCreateImage(cvSize(pFrameInfo->nWidth,pFrameInfo->nHeight), 8, 3);//得到图像的Y分量
         yv12toYUV(pImgYCrCb->imageData, pBuf, pFrameInfo->nWidth,pFrameInfo->nHeight,pImgYCrCb->widthStep);//得到全部RGB图像
@@ -204,60 +205,10 @@ DWORD WINAPI getFun(LPVOID lpParameter)
 }
 
 
-DWORD WINAPI dealFun(LPVOID lpParameter)
-{
-    int *sig, i;
-    IplImage *img[NUM_FRAME];
-    list<IplImage*>::iterator it1;
-    printf("child thread 2 running\n");
-    //调用python处理图像
-    while(1)
-    {
-        //结束线程信号
-        if(termi == 1)
-        {
-            printf("Thread dealFun exiting...\n");
-            break;
-        }
-
-        //读锁
-        RW_Lock.ReadLock();
-        //容器内帧数不足时等待
-        if(list_img.size() < NUM_FRAME)
-        {
-            continue;
-        }
-        printf("%d ",list_img.size());
-
-
-        //从容器中调取图片
-        it1 = list_img.begin();
-        for(i = 0; i < NUM_FRAME; ++i)
-        {
-            img[i] = *it;
-            ++it;
-        }
-        RW_Lock.ReadUnlock();
-        Sleep(100);
-
-        sig = pycap(img, NUM_FRAME);
-        for(i = 0; i < NUM_FRAME; ++i)
-            if(sig[i] == 1)
-                printf("\a");  //识别目标发出警报
-    }
-    //释放资源
-    for(i = 0; i < NUM_FRAME; ++i)
-        cvReleaseImage(&img[i]);
-    delete []sig;
-    return 0;
-}
-
-
 int main() {
 
-    HANDLE hChildThread1;
-    HANDLE hChildThread2;
-        hChildThread1 = CreateThread(
+    HANDLE hChildThread;
+        hChildThread = CreateThread(
                 NULL,    // 使用缺省的安全性
                 0,    // 初始提交的栈的大小
                 getFun,    // 线程入口函数
@@ -265,28 +216,41 @@ int main() {
                 0,    // 附加标记 , 0 表示线程创建后立即运行
                 NULL    // 线程 ID
         );
-
-        hChildThread2 = CreateThread(NULL, 0, dealFun, NULL, 0, NULL);
-    CloseHandle(hChildThread1);
-    CloseHandle(hChildThread2);
+    CloseHandle(hChildThread);
+    int *sig, i;
+    IplImage *img[NUM_FRAME];
+    list<IplImage*>::iterator it1;
     while(1)
     {
-        scanf("%d", &termi);
-        if(termi == 1)
+        //读锁
+        RW_Lock.ReadLock();
+        //容器内帧数不足时等待
+        if(list_img.size() < NUM_FRAME)
         {
-            printf("Program exiting in 2 seconds...");
-            Sleep(2000);
-            break;
+            continue;
         }
+        //从容器中调取图片
+        it1 = list_img.begin();
+        for(i = 0; i < NUM_FRAME; ++i)
+        {
+            img[i] = *it1;
+            ++it1;
+        }
+        RW_Lock.ReadUnlock();
+
+        sig = pycap(img, NUM_FRAME);
+        for(i = 0; i < NUM_FRAME; ++i)
+            if(sig[i] == 1)
+                printf("\a");  //识别目标发出警报
     }
-
-    printf("exited\n");
-
 #if USECOLOR
     cvReleaseImage(&pImgYCrCb);
     cvReleaseImage(&pImg);
 #else
     cvReleaseImage(&pImg);
 #endif
+  for(i = 0; i < NUM_FRAME; ++i)
+      cvReleaseImage(&img[i]);
+  delete []sig;
   return 0;
 }
