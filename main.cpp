@@ -5,7 +5,6 @@
 #include "HCNetSDK.h"
 #include "PlayM4.h"
 #include <list>
-#include "pycap.h"
 #include "rwlockhead.h"
 #define USECOLOR 1
 #define NUM_FRAME 30
@@ -13,12 +12,11 @@
 using namespace std;
 using namespace cv;
 
-list<IplImage*> list_img;
+IplImage *list_img[NUM_FRAME];
 volatile int termi = 0;
+volatile int p_count = 0;
+volatile int _count = 0;
 CRWLock RW_Lock;
-IplImage *pImg;
-IplImage *pImgYCrCb;
-list<IplImage*>::iterator it = list_img.begin();
 
 int iPicNum=0;//Set channel NO.
 LONG nPort=-1;
@@ -60,31 +58,35 @@ void yv12toYUV(char *outYuv, char *inYv12, int width, int height,int widthStep)
 void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,FRAME_INFO * pFrameInfo, long nReserved1,long nReserved2)
 {
     long lFrameType = pFrameInfo->nType;
-
+    IplImage *pImg = cvCreateImage(cvSize(pFrameInfo->nWidth,pFrameInfo->nHeight), 8, 3);
+    IplImage *pImgYCrCb = cvCreateImage(cvSize(pFrameInfo->nWidth,pFrameInfo->nHeight), 8, 3);//得到图像的Y分量
+    IplImage *pImg1 = cvCreateImage(cvSize(100, 100), 8, 3);
     if(lFrameType ==T_YV12)
     {
-        //写锁
-        RW_Lock.WriteLock();
-        pImgYCrCb = cvCreateImage(cvSize(pFrameInfo->nWidth,pFrameInfo->nHeight), 8, 3);//得到图像的Y分量
-        yv12toYUV(pImgYCrCb->imageData, pBuf, pFrameInfo->nWidth,pFrameInfo->nHeight,pImgYCrCb->widthStep);//得到全部RGB图像
-        pImg = cvCreateImage(cvSize(pFrameInfo->nWidth,pFrameInfo->nHeight), 8, 3);
+        yv12toYUV(pImgYCrCb->imageData, pBuf, pFrameInfo->nWidth,pFrameInfo->nHeight,pImgYCrCb->widthStep);//得到全部RGB图像     
         cvCvtColor(pImgYCrCb,pImg,CV_YCrCb2RGB);
-        IplImage *pImg1 = cvCreateImage(cvSize(100, 100), 8, 3);
         cvResize(pImg, pImg1);
 
-        if(list_img.size() < NUM_FRAME)
+        RW_Lock.WriteLock();  //写锁
+        if(pImg1 && pImg1->height == 100 && pImg1->width == 100
+                && pImg1->depth == 8 && pImg1->nChannels == 3)
         {
-            list_img.push_back(pImg1);
+            cvCopyImage(pImg1, list_img[p_count++]);  //深拷贝
+            if(p_count == 30)
+            {
+                _count = 1;
+                p_count = 0;
+            }
         }
-        else
-        {
-            list_img.pop_front();
-            list_img.push_back(pImg1);
-        }
-        printf("Dec ");
-        cvReleaseImage(&pImg1);
-        RW_Lock.WriteUnlock();
-        Sleep(100);
+        RW_Lock.WriteUnlock();  //写锁解锁
+        cvReleaseImage(&pImg1);       
+#if USECOLOR
+    cvReleaseImage(&pImgYCrCb);
+    cvReleaseImage(&pImg);
+#else
+    cvReleaseImage(&pImg);
+#endif
+    Sleep(200);  //挂起0.2s
     }
 }
 
@@ -161,6 +163,12 @@ void CALLBACK g_ExceptionCallBack(DWORD dwType, LONG lUserID, LONG lHandle, void
 
 DWORD WINAPI getFun(LPVOID lpParameter)
 {
+    RW_Lock.WriteLock();
+    for(int cou = 0; cou < NUM_FRAME; ++cou)
+    {
+        list_img[cou] = cvCreateImage(cvSize(100,100), 8, 3);  //深拷贝
+    }
+    RW_Lock.WriteUnlock();
     // 初始化
     NET_DVR_Init();
     //设置连接时间与重连时间
@@ -207,6 +215,27 @@ DWORD WINAPI getFun(LPVOID lpParameter)
 
 int main() {
 
+    //=============================================================
+    int h = 100, w = 100, n = 3;
+    int shape[3] = {h, w, n};
+    int mul = h*w*n;
+    Py_Initialize();    // 初始化
+
+
+    // 将Python工作路径切换到待调用模块所在目录，一定要保证路径名的正确性
+
+    string path = "D:\\Documents\\QT\\hikang_cap_2";
+    string chdir_cmd = string("sys.path.insert(0,\"") + path + "\")";
+    //一定要将模块目录添加到sys.path的首位，否则可能添加失败
+
+    const char* cstr_cmd = chdir_cmd.c_str();
+    PyRun_SimpleString("import sys");
+    PyRun_SimpleString(cstr_cmd);
+
+    PyObject* pModule = PyImport_ImportModule("cap");
+    PyObject* pv = PyObject_GetAttrString(pModule, "pred");
+    //=============================================================
+
     HANDLE hChildThread;
         hChildThread = CreateThread(
                 NULL,    // 使用缺省的安全性
@@ -217,40 +246,85 @@ int main() {
                 NULL    // 线程 ID
         );
     CloseHandle(hChildThread);
-    int *sig, i;
+    //int *sig;
+    int i;
     IplImage *img[NUM_FRAME];
-    list<IplImage*>::iterator it1;
+    for(i = 0; i < NUM_FRAME; ++i)
+    {
+        img[i] = cvCreateImage(cvSize(100,100), 8, 3);
+    }
     while(1)
     {
         //读锁
         RW_Lock.ReadLock();
         //容器内帧数不足时等待
-        if(list_img.size() < NUM_FRAME)
+        if(_count == 0)
         {
+            RW_Lock.ReadUnlock();  //读锁解锁
+            Sleep(100);
             continue;
         }
-        //从容器中调取图片
-        it1 = list_img.begin();
+        //从数组中调取图片
         for(i = 0; i < NUM_FRAME; ++i)
         {
-            img[i] = *it1;
-            ++it1;
+            printf("Dec ");
+            //printf("%d %d %d  ", list_img[i]->height, list_img[i]->width, list_img[i]->nChannels);
+            cvCopyImage(list_img[i], img[i]);  //深拷贝
         }
-        RW_Lock.ReadUnlock();
+        RW_Lock.ReadUnlock();  //读锁解锁
 
-        sig = pycap(img, NUM_FRAME);
-        for(i = 0; i < NUM_FRAME; ++i)
-            if(sig[i] == 1)
-                printf("\a");  //识别目标发出警报
+        //不可多次调用pycap函数，原因不明。
+        //============================================================
+        int *a = new int[mul*NUM_FRAME];
+        int j, k;
+            CvScalar s;
+            for(int cou = 0; cou < NUM_FRAME; ++cou)
+                for(i = 0; i < h; ++i)
+                    for(j = 0; j < w; ++j)
+                    {
+                        s=cvGet2D(img[cou],i,j);
+                        a[cou*mul+i*w*n+j*n] = s.val[0];
+                        a[cou*mul+i*w*n+j*n+1] = s.val[1];
+                        a[cou*mul+i*w*n+j*n+2] = s.val[2];
+                    }
+
+        printf("No Problems Yet.\n");
+
+
+        //设置参数
+        PyObject* args = PyTuple_New(3);
+        PyObject* arg1 = PyList_New(mul*NUM_FRAME);
+        PyObject* arg2 = PyList_New(3);
+        PyObject* arg3 = PyInt_FromLong(NUM_FRAME);
+
+        for(k = 0; k < 3; k++)
+            PyList_SetItem(arg2, k, PyInt_FromLong(shape[k]));
+
+        for(k = 0; k < mul * NUM_FRAME; k++)
+            PyList_SetItem(arg1, k, PyInt_FromLong(a[k]));
+
+        PyTuple_SetItem(args, 0, arg1);
+        PyTuple_SetItem(args, 1, arg2);
+        PyTuple_SetItem(args, 2, arg3);
+
+        PyObject* pRet = PyObject_CallObject(pv, args);
+        int *ret = new int[NUM_FRAME];
+        for(k = 0; k < NUM_FRAME; ++k)
+        {
+            ret[k] = PyInt_AsLong(PyList_GetItem(pRet, k));
+            printf("%d ", ret[k]);
+        }
+        printf("\n");
+
+        delete []a;
+        delete []ret;
+        //============================================================
     }
-#if USECOLOR
-    cvReleaseImage(&pImgYCrCb);
-    cvReleaseImage(&pImg);
-#else
-    cvReleaseImage(&pImg);
-#endif
   for(i = 0; i < NUM_FRAME; ++i)
+  {
       cvReleaseImage(&img[i]);
-  delete []sig;
+      cvReleaseImage(&list_img[i]);
+  }
+  //delete []sig;
   return 0;
 }
