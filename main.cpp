@@ -1,6 +1,11 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <cmath>
+#include "Python.h"
+#include <opencv2\opencv.hpp>
+#include "cv.h"
+#include "highgui.h"
 #include "Windows.h"
 #include "HCNetSDK.h"
 #include "PlayM4.h"
@@ -186,7 +191,7 @@ DWORD WINAPI getFun(LPVOID lpParameter)
          return -1;
     }
 
-    printf("child thread 1 running\n");
+    printf("child thread running\n");
     //设置异常消息回调函数
     NET_DVR_SetExceptionCallBack_V30(0, NULL,g_ExceptionCallBack, NULL);
 
@@ -216,6 +221,7 @@ DWORD WINAPI getFun(LPVOID lpParameter)
 int main() {
 
     //=============================================================
+    //加载python函数
     int h = 100, w = 100, n = 3;
     int shape[3] = {h, w, n};
     int mul = h*w*n;
@@ -234,6 +240,7 @@ int main() {
 
     PyObject* pModule = PyImport_ImportModule("cap");
     PyObject* pv = PyObject_GetAttrString(pModule, "pred");
+    //PyObject* pv1 = PyObject_GetAttrString(pModule, "pri");
     //=============================================================
 
     HANDLE hChildThread;
@@ -246,7 +253,7 @@ int main() {
                 NULL    // 线程 ID
         );
     CloseHandle(hChildThread);
-    //int *sig;
+    int *ret = new int[NUM_FRAME];
     int i;
     IplImage *img[NUM_FRAME];
     for(i = 0; i < NUM_FRAME; ++i)
@@ -267,14 +274,13 @@ int main() {
         //从数组中调取图片
         for(i = 0; i < NUM_FRAME; ++i)
         {
-            printf("Dec ");
-            //printf("%d %d %d  ", list_img[i]->height, list_img[i]->width, list_img[i]->nChannels);
             cvCopyImage(list_img[i], img[i]);  //深拷贝
         }
         RW_Lock.ReadUnlock();  //读锁解锁
 
         //不可多次调用pycap函数，原因不明。
         //============================================================
+        //设置参数
         int *a = new int[mul*NUM_FRAME];
         int j, k;
             CvScalar s;
@@ -288,10 +294,6 @@ int main() {
                         a[cou*mul+i*w*n+j*n+2] = s.val[2];
                     }
 
-        printf("No Problems Yet.\n");
-
-
-        //设置参数
         PyObject* args = PyTuple_New(3);
         PyObject* arg1 = PyList_New(mul*NUM_FRAME);
         PyObject* arg2 = PyList_New(3);
@@ -307,24 +309,28 @@ int main() {
         PyTuple_SetItem(args, 1, arg2);
         PyTuple_SetItem(args, 2, arg3);
 
+        //PyObject_CallObject(pv1, args);
         PyObject* pRet = PyObject_CallObject(pv, args);
-        int *ret = new int[NUM_FRAME];
         for(k = 0; k < NUM_FRAME; ++k)
         {
             ret[k] = PyInt_AsLong(PyList_GetItem(pRet, k));
             printf("%d ", ret[k]);
+            if(ret[k] == 1)
+                printf("\a");  //识别目标发出警报
         }
         printf("\n");
 
         delete []a;
-        delete []ret;
+        Sleep(1000);
         //============================================================
     }
+  //释放资源
   for(i = 0; i < NUM_FRAME; ++i)
   {
       cvReleaseImage(&img[i]);
       cvReleaseImage(&list_img[i]);
   }
-  //delete []sig;
+  Py_Finalize();
+  delete []ret;
   return 0;
 }
