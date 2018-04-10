@@ -9,7 +9,6 @@
 #include "Windows.h"
 #include "HCNetSDK.h"
 #include "PlayM4.h"
-#include <list>
 #include "rwlockhead.h"
 #define USECOLOR 1
 #define NUM_FRAME 30
@@ -77,7 +76,7 @@ void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,FRAME_INFO * pFrameInfo
                 && pImg1->depth == 8 && pImg1->nChannels == 3)
         {
             cvCopyImage(pImg1, list_img[p_count++]);  //深拷贝
-            if(p_count == 30)
+            if(p_count == NUM_FRAME)
             {
                 _count = 1;
                 p_count = 0;

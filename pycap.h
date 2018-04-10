@@ -98,8 +98,8 @@ int* pycap(IplImage* img[], int NUM)
         ret[k] = PyInt_AsLong(PyList_GetItem(pRet, k));
 
     //释放资源
+    Py_Finalize();
     delete []a;
     delete []b;
-    Py_Finalize();
     return ret;
 }
