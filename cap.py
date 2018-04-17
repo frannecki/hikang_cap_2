@@ -29,6 +29,7 @@ def pred(A, B, n):
     for i in range(0, n):
         A1 = A[i]
         if K.image_data_format() == 'channels_first':
+        	A1 = A1.transpose(0, 3, 1, 2)
             A1 = A1.reshape(1, B[2], B[0], B[1])
         else:
             A1 = A1.reshape(1, B[0], B[1], B[2])
