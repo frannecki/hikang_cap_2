@@ -1,0 +1,13 @@
+[2018-05-03 01:43:42.841][INF] The COM:Core ver is 5.3.5.2, 2017_11_24. Async:1.
+[2018-05-03 01:43:42.841][INF] This hcnetsdk ver is 5.3.5.2 Ver 2017_11_24.
+[2018-05-03 01:43:42.841][INF] login dev 192.168.1.104:8000.
+[2018-05-03 01:43:43.355][INF] Private connect 192.168.1.104:8000 sock=37 this=0xa810f444 cmd=0x10000 port=35746
+[2018-05-03 01:43:43.355][INF] LogonDev1 in[192.168.1.104:8000]
+[2018-05-03 01:43:43.432][INF] AbilityAnalyze---Init-- start
+[2018-05-03 01:43:43.679][DBG] AbilityAnalyze---Init-- over, DeviceList path [/home/fran/Documents/env/haikang/LocalXml/DeviceList.xml], load result[0]
+[2018-05-03 01:43:43.679][INF] The COM:Preview ver is 5.3.5.2, 2017_11_24.
+[2018-05-03 01:43:43.679][INF] ID-IP-CHAN[0-192.168.1.104-1] [CPreviewSession::AdjustProtoType] StreamMode[0], StreamProtocol[0xffff]
+[2018-05-03 01:43:43.923][DBG] ID-IP-CHAN[0-192.168.1.104-1] [CPreviewSession::Start] SUCC
+[2018-05-03 01:43:43.925][INF] Private connect 192.168.1.104:8000 sock=37 this=0xa810f444 cmd=0x30000 port=35748
+[2018-05-03 01:43:43.931][INF] GlobalCtrl load [.//HCNetSDKCom/libSystemTransform.so] with sdk path success and get handle[0x88001190]
+[2018-05-03 01:43:43.931][INF] CStreamConvert::LoadConvertLib Load Succ, m_iInitCount = 1

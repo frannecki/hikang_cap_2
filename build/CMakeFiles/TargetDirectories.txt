@@ -1,0 +1,3 @@
+/home/fran/Documents/ClionPro/hikang_cap_2/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Documents/ClionPro/hikang_cap_2/build/CMakeFiles/edit_cache.dir
+/home/fran/Documents/ClionPro/hikang_cap_2/build/CMakeFiles/hikang_cap_2.dir
