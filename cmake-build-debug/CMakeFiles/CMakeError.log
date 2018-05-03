@@ -1,22 +1,22 @@
 Determining if the pthread_create exist failed with the following output:
 Change Dir: /home/fran/Documents/ClionPro/hikang_cap_2/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_97670/fast"
-/usr/bin/make -f CMakeFiles/cmTC_97670.dir/build.make CMakeFiles/cmTC_97670.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_bfac2/fast"
+/usr/bin/make -f CMakeFiles/cmTC_bfac2.dir/build.make CMakeFiles/cmTC_bfac2.dir/build
 make[1]: Entering directory '/home/fran/Documents/ClionPro/hikang_cap_2/cmake-build-debug/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_97670.dir/CheckSymbolExists.c.o
-/usr/bin/cc    -o CMakeFiles/cmTC_97670.dir/CheckSymbolExists.c.o   -c /home/fran/Documents/ClionPro/hikang_cap_2/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTC_97670
-/opt/clion-2017.3/bin/cmake/bin/cmake -E cmake_link_script CMakeFiles/cmTC_97670.dir/link.txt --verbose=1
-/usr/bin/cc      CMakeFiles/cmTC_97670.dir/CheckSymbolExists.c.o  -o cmTC_97670 
-CMakeFiles/cmTC_97670.dir/CheckSymbolExists.c.o: In function `main':
+Building C object CMakeFiles/cmTC_bfac2.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_bfac2.dir/CheckSymbolExists.c.o   -c /home/fran/Documents/ClionPro/hikang_cap_2/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_bfac2
+/opt/clion-2017.3/bin/cmake/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bfac2.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_bfac2.dir/CheckSymbolExists.c.o  -o cmTC_bfac2 
+CMakeFiles/cmTC_bfac2.dir/CheckSymbolExists.c.o: In function `main':
 CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_97670.dir/build.make:97: recipe for target 'cmTC_97670' failed
-make[1]: *** [cmTC_97670] Error 1
+CMakeFiles/cmTC_bfac2.dir/build.make:97: recipe for target 'cmTC_bfac2' failed
+make[1]: *** [cmTC_bfac2] Error 1
 make[1]: Leaving directory '/home/fran/Documents/ClionPro/hikang_cap_2/cmake-build-debug/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_97670/fast' failed
-make: *** [cmTC_97670/fast] Error 2
+Makefile:126: recipe for target 'cmTC_bfac2/fast' failed
+make: *** [cmTC_bfac2/fast] Error 2
 
 File /home/fran/Documents/ClionPro/hikang_cap_2/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
@@ -36,20 +36,20 @@ int main(int argc, char** argv)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /home/fran/Documents/ClionPro/hikang_cap_2/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_d2f14/fast"
-/usr/bin/make -f CMakeFiles/cmTC_d2f14.dir/build.make CMakeFiles/cmTC_d2f14.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_6eb61/fast"
+/usr/bin/make -f CMakeFiles/cmTC_6eb61.dir/build.make CMakeFiles/cmTC_6eb61.dir/build
 make[1]: Entering directory '/home/fran/Documents/ClionPro/hikang_cap_2/cmake-build-debug/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_d2f14.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_d2f14.dir/CheckFunctionExists.c.o   -c /opt/clion-2017.3/bin/cmake/share/cmake-3.9/Modules/CheckFunctionExists.c
-Linking C executable cmTC_d2f14
-/opt/clion-2017.3/bin/cmake/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d2f14.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_d2f14.dir/CheckFunctionExists.c.o  -o cmTC_d2f14 -lpthreads 
+Building C object CMakeFiles/cmTC_6eb61.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_6eb61.dir/CheckFunctionExists.c.o   -c /opt/clion-2017.3/bin/cmake/share/cmake-3.9/Modules/CheckFunctionExists.c
+Linking C executable cmTC_6eb61
+/opt/clion-2017.3/bin/cmake/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6eb61.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_6eb61.dir/CheckFunctionExists.c.o  -o cmTC_6eb61 -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_d2f14.dir/build.make:97: recipe for target 'cmTC_d2f14' failed
-make[1]: *** [cmTC_d2f14] Error 1
+CMakeFiles/cmTC_6eb61.dir/build.make:97: recipe for target 'cmTC_6eb61' failed
+make[1]: *** [cmTC_6eb61] Error 1
 make[1]: Leaving directory '/home/fran/Documents/ClionPro/hikang_cap_2/cmake-build-debug/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_d2f14/fast' failed
-make: *** [cmTC_d2f14/fast] Error 2
+Makefile:126: recipe for target 'cmTC_6eb61/fast' failed
+make: *** [cmTC_6eb61/fast] Error 2
 
 

@@ -1,14 +1,14 @@
-[2018-05-03 02:21:29.611][INF] The COM:Core ver is 5.3.5.2, 2017_11_24. Async:1.
-[2018-05-03 02:21:29.611][INF] This hcnetsdk ver is 5.3.5.2 Ver 2017_11_24.
-[2018-05-03 02:21:29.611][INF] login dev 192.168.1.104:8000.
-[2018-05-03 02:21:30.088][INF] Private connect 192.168.1.104:8000 sock=37 this=0xf810f444 cmd=0x10000 port=36506
-[2018-05-03 02:21:30.088][INF] LogonDev1 in[192.168.1.104:8000]
-[2018-05-03 02:21:30.121][INF] AbilityAnalyze---Init-- start
-[2018-05-03 02:21:30.368][DBG] AbilityAnalyze---Init-- over, DeviceList path [/home/fran/Documents/ClionPro/hikang_cap_2/lib/LocalXml/DeviceList.xml], load result[0]
-[2018-05-03 02:21:30.368][INF] The COM:Preview ver is 5.3.5.2, 2017_11_24.
-[2018-05-03 02:21:30.368][INF] ID-IP-CHAN[0-192.168.1.104-1] [CPreviewSession::AdjustProtoType] StreamMode[0], StreamProtocol[0xffff]
-[2018-05-03 02:21:30.614][DBG] ID-IP-CHAN[0-192.168.1.104-1] [CPreviewSession::Start] SUCC
-[2018-05-03 02:21:30.616][INF] Private connect 192.168.1.104:8000 sock=37 this=0xf810f444 cmd=0x30000 port=36508
-[2018-05-03 02:21:30.622][INF] GlobalCtrl load [.//HCNetSDKCom/libSystemTransform.so] with sdk path success and get handle[0xd8001150]
-[2018-05-03 02:21:30.622][INF] CStreamConvert::LoadConvertLib Load Succ, m_iInitCount = 1
-[2018-05-03 02:21:30.661][ERR] CStreamConvert::Convert SYSTRANS_InputData fail -300961856 [0x800000ff], dataLen[332]
+[2018-05-03 10:54:15.838][INF] The COM:Core ver is 5.3.5.2, 2017_11_24. Async:1.
+[2018-05-03 10:54:15.838][INF] This hcnetsdk ver is 5.3.5.2 Ver 2017_11_24.
+[2018-05-03 10:54:15.839][INF] login dev 192.168.1.104:8000.
+[2018-05-03 10:54:16.341][INF] Private connect 192.168.1.104:8000 sock=37 this=0x3810f444 cmd=0x10000 port=33548
+[2018-05-03 10:54:16.341][INF] LogonDev1 in[192.168.1.104:8000]
+[2018-05-03 10:54:16.517][INF] AbilityAnalyze---Init-- start
+[2018-05-03 10:54:16.762][DBG] AbilityAnalyze---Init-- over, DeviceList path [/home/fran/Documents/ClionPro/hikang_cap_2/lib/LocalXml/DeviceList.xml], load result[0]
+[2018-05-03 10:54:16.763][INF] The COM:Preview ver is 5.3.5.2, 2017_11_24.
+[2018-05-03 10:54:16.763][INF] ID-IP-CHAN[0-192.168.1.104-1] [CPreviewSession::AdjustProtoType] StreamMode[0], StreamProtocol[0xffff]
+[2018-05-03 10:54:17.001][DBG] ID-IP-CHAN[0-192.168.1.104-1] [CPreviewSession::Start] SUCC
+[2018-05-03 10:54:17.003][INF] Private connect 192.168.1.104:8000 sock=37 this=0x3810f444 cmd=0x30000 port=33550
+[2018-05-03 10:54:17.138][INF] GlobalCtrl load [.//HCNetSDKCom/libSystemTransform.so] with sdk path success and get handle[0x18001150]
+[2018-05-03 10:54:17.138][INF] CStreamConvert::LoadConvertLib Load Succ, m_iInitCount = 1
+[2018-05-03 10:54:17.141][ERR] CStreamConvert::Convert SYSTRANS_InputData fail 761094080 [0x800000ff], dataLen[332]

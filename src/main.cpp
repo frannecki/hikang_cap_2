@@ -14,5 +14,9 @@ int main()
 
     int shape[3] = {100, 100, 3};
     cap(10, shape, 0.01, 0.01, a);
+
+    for (int i = 0; i < 3;)
+         delete []a[i];
+    delete []a;
     return 0;
 }
