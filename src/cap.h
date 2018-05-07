@@ -15,7 +15,7 @@ static Mat dst;
 Mat *list_img;
 volatile int p_count = 0;
 volatile int _count = 0;
-volatile int t;
+volatile double t;
 pthread_rwlock_t RW_Lock;
 
 HWND hW = NULL;
