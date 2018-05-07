@@ -13,17 +13,31 @@ int str_len(char *str)
 int main()
 {
     char **a = new char*[3];
+    char **b = new char*[3];
     for(int i = 0; i < 3; ++i)
-        *a = new char[20];
+    {
+        a[i] = new char[25];
+        b[i] = new char[25];
+    }
+        
     //a[0] = "192.168.1.104";
     //a[1] = "admin";
     //a[2] = "haikang#1";
-    printf("IP: ");
-    scanf("%s", a[0]);
-    printf("Username: ");
-    scanf("%s", a[1]);
-    printf("Password: ");
-    scanf("%s", a[2]);
+    b[0] = "IP";
+    b[1] = "Username";
+    b[2] = "Password";
+    for(int i = 0; i < 3; ++i)
+    {
+        printf("%s: ", b[i]);
+        scanf("%s", a[i]);
+        if(strlen(a[i]) > 20)
+        {
+            printf("\n须在20字符以内!\n");
+            return -1;
+        }
+            
+    }
+    
     int shape[3] = {100, 100, 3};
     cap(10, shape, 0.01, 0.01, a);
 

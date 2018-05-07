@@ -1,5 +1,5 @@
-[2018-05-07 22:06:33.189][INF] The COM:Core ver is 5.3.5.2, 2017_11_24. Async:1.
-[2018-05-07 22:06:33.189][INF] This hcnetsdk ver is 5.3.5.2 Ver 2017_11_24.
-[2018-05-07 22:06:33.690][ERR] CEzvizTrans::UnloadSSLLib failed
-[2018-05-07 22:06:33.690][INF] CSSLTrans::UnloadSSLLib, Lib Not Load
-[2018-05-07 22:06:33.690][INF] Libiconv, Lib Not Load.
+[2018-05-07 22:27:35.756][INF] The COM:Core ver is 5.3.5.2, 2017_11_24. Async:1.
+[2018-05-07 22:27:35.756][INF] This hcnetsdk ver is 5.3.5.2 Ver 2017_11_24.
+[2018-05-07 22:27:36.256][ERR] CEzvizTrans::UnloadSSLLib failed
+[2018-05-07 22:27:36.256][INF] CSSLTrans::UnloadSSLLib, Lib Not Load
+[2018-05-07 22:27:36.256][INF] Libiconv, Lib Not Load.
