@@ -38,8 +38,8 @@ int main()
             
     }
     
-    int shape[3] = {100, 100, 3};
-    cap(10, shape, 0.01, 0.01, a);
+    int shape[3] = {50, 50, 3};
+    cap(1, shape, 0.01, 0.01, a);
 
     for (int i = 0; i < 3;)
          delete []a[i];

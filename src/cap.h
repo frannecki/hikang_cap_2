@@ -32,7 +32,8 @@ void __attribute__((__stdcall)) DecCBFun(LONG nPort, char *pBuf, LONG nSize, FRA
         cvtColor(src, dst, CV_YUV2BGR_YV12);
 
         pthread_rwlock_wrlock(&RW_Lock);  //写锁
-        resize(dst, list_img[p_count++], Size(shape[0], shape[1]), 0, 0, CV_INTER_LINEAR);
+        list_img[p_count++]=dst.clone();
+        //resize(dst, list_img[p_count++], Size(shape[0], shape[1]), 0, 0, CV_INTER_LINEAR);
         if (p_count == NUM_FRAME)
         {
             _count = 1;

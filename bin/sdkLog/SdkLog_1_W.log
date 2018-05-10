@@ -1,5 +1,13 @@
-[2018-05-07 22:27:35.756][INF] The COM:Core ver is 5.3.5.2, 2017_11_24. Async:1.
-[2018-05-07 22:27:35.756][INF] This hcnetsdk ver is 5.3.5.2 Ver 2017_11_24.
-[2018-05-07 22:27:36.256][ERR] CEzvizTrans::UnloadSSLLib failed
-[2018-05-07 22:27:36.256][INF] CSSLTrans::UnloadSSLLib, Lib Not Load
-[2018-05-07 22:27:36.256][INF] Libiconv, Lib Not Load.
+[2018-05-10 23:52:59.474][INF] The COM:Core ver is 5.3.5.2, 2017_11_24. Async:1.
+[2018-05-10 23:52:59.474][INF] This hcnetsdk ver is 5.3.5.2 Ver 2017_11_24.
+[2018-05-10 23:52:59.474][INF] login dev 192.168.1.104:8000.
+[2018-05-10 23:52:59.950][INF] Private connect 192.168.1.104:8000 sock=37 this=0x8010f0e4 cmd=0x10000 port=54714
+[2018-05-10 23:52:59.950][INF] LogonDev1 in[192.168.1.104:8000]
+[2018-05-10 23:53:00.028][INF] AbilityAnalyze---Init-- start
+[2018-05-10 23:53:00.263][DBG] AbilityAnalyze---Init-- over, DeviceList path [/home/fran/Documents/ClionPro/hikang_cap_2/lib/LocalXml/DeviceList.xml], load result[0]
+[2018-05-10 23:53:00.263][INF] The COM:Preview ver is 5.3.5.2, 2017_11_24.
+[2018-05-10 23:53:00.264][INF] ID-IP-CHAN[0-192.168.1.104-1] [CPreviewSession::AdjustProtoType] StreamMode[0], StreamProtocol[0xffff]
+[2018-05-10 23:53:00.499][DBG] ID-IP-CHAN[0-192.168.1.104-1] [CPreviewSession::Start] SUCC
+[2018-05-10 23:53:00.501][INF] Private connect 192.168.1.104:8000 sock=37 this=0x8010f0e4 cmd=0x30000 port=54716
+[2018-05-10 23:53:00.508][INF] GlobalCtrl load [.//HCNetSDKCom/libSystemTransform.so] with sdk path success and get handle[0x60001150]
+[2018-05-10 23:53:00.508][INF] CStreamConvert::LoadConvertLib Load Succ, m_iInitCount = 1
