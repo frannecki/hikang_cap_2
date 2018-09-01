@@ -188,7 +188,8 @@ int cap(int n_frame, int cv_shape[], double pt1, double pt2, char** log)
 
     pthread_rwlock_unlock(&RW_Lock);  //解锁
 
-    int mul = 30000, h = shape[0], w = shape[1], n = shape[2];
+    int h = shape[0], w = shape[1], n = shape[2];
+    int mul = h*w*n;
     printf("[M] Main Thread Is Running\n");
     pthread_t thread;
     int iret = pthread_create(&thread, NULL, getFun, (void*)log);
@@ -228,9 +229,8 @@ int cap(int n_frame, int cv_shape[], double pt1, double pt2, char** log)
                 for(j = 0; j < w; ++j)
                 {
                     s=img[cou].at<Vec3b>(i,j);
-                    a[cou*mul+i*w*n+j*n] = s.val[0];
-                    a[cou*mul+i*w*n+j*n+1] = s.val[1];
-                    a[cou*mul+i*w*n+j*n+2] = s.val[2];
+                    for(int p = 0; p < n; ++p)
+                        a[cou*mul+i*w*n+j*n+p] = s.val[p];
                 }
 
         delete []a;
